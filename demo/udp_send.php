@@ -30,19 +30,18 @@
     $i = 0;
     stop ($last);
     while(1) {
-        if ($i==1000000)
-            break;
+
         $i++;
         $data["msg"] = "Pi20jdlakjsdflksjaldfkjalskdfjlskaasldkjaslkdfjlaksjfdlkasjldkfjw0942jelkj20i94jolkjalkdjkkkkkkkkkkkkkkkkkkkalsdkflaksdjflkajsdlfkjasldkfjlsakdfjlaskdfjlsakdjflkasdjflkj2lkjrlkjafoijwlkefjlakjerfpowoejflakjfowaijelfkajsldkfjwoiewjolfkwjokjdjflaksjfow4r02ijng!" . $i;
 
         //$ps = "ping";
-        $ps = pack("iiZ*", $data["sysId"], $data["pw"], $data["msg"]);
+        $ps = json_encode($data);
 
         //$ps = gzcompress($ps, 2);
-
+        usleep(100);
         $len = strlen($ps);
         //stop($last);
-        socket_sendto($sock, $ps, $len, 0, '127.0.0.1', 5555);
+        socket_sendto($sock, $ps, $len, 0, '192.168.2.100', 5555);
     }
 
     echo $i;
