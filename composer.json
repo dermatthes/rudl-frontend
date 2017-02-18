@@ -1,0 +1,30 @@
+{
+  "name": "rudl/logger-server",
+  "type": "library",
+  "description": "Rudl UDP Cluster Logging Server",
+  "keywords": ["Html", "parsing", "tokenizer", "html5"],
+  "homepage": "http://leuffen.de",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Matthias Leuffen",
+      "email": "matthes@leuffen.de",
+      "homepage": "http://leuffen.de"
+    }
+  ],
+  "require": {
+    "php": ">=7.0"
+  },
+  "autoload": {
+    "psr-4": { "Rudl\\": "src/" },
+    "exclude-from-classmap": [
+      "/test/"
+    ]
+  },
+  "minimum-stability": "dev",
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.1-dev"
+    }
+  }
+}

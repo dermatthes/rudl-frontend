@@ -15,6 +15,9 @@ class UdpServer
 
     private $mSock = false;
 
+    /**
+     * @var UdpServerProcessor[]
+     */
     private $mProcessors = [];
 
     public function __construct(string $listenAddr, int $port)
@@ -41,33 +44,51 @@ class UdpServer
     }
 
 
+    private $mStats = [];
 
+    private function resetStats() {
 
-    public function run() {
+    }
+
+    public function run($flushInterval = 5) {
+        $lastFlush = time();
+        $pid = false;
         while(1)
         {
             //Receive some data
-            $r = socket_recvfrom($this->mSock, $buf, 8024, 0, $remote_ip, $remote_port);
-            echo "$remote_ip : $remote_port -- " . " (" . strlen($buf). ")";
-
-            $data[] = $buf;
-
-            if (count($data) > 100) {
-                echo "forking.";
-                $pid = pcntl_fork();
-                if ($pid == -1) {
-                    throw new Exception("Cannot fork!");
-                } else if ($pid) {
-                    // ParentProcess
-                    $data = [];
-                    echo "Parent Process - resetting buffer";
-                } else {
-                    // Child Process
-                    sleep (1);
-                    echo "Child Buffer size: " . count ($data);
-                    exit (0);
+            $recLen = socket_recvfrom($this->mSock, $buf, 8024, MSG_DONTWAIT, $remote_ip, $remote_port);
+            if ($recLen == 0) {
+                usleep(100);
+            } else {
+                $_header = substr($buf, 0, 32);
+                $_body = substr($buf, 32);
+                $_msgType = substr($_header, 0, 2);
+                if (isset ($this->mProcessors[$_msgType])) {
+                    $this->mProcessors[$_msgType]->injectMessage($remote_ip, $remote_port, $_body);
                 }
             }
+
+            if (time() - $lastFlush < $flushInterval) {
+                continue;
+            }
+
+
+            $pid = pcntl_fork();
+            if ($pid == -1) {
+                throw new \Exception("Cannot fork!");
+            } else if ($pid) {
+                foreach ($this->mProcessors as $key => $value) {
+                    $value->flush();
+                }
+                echo "\nParent Process - resetting buffer";
+            } else {
+                // Child Process
+                foreach ($this->mProcessors as $key => $value) {
+                    $value->processData();
+                }
+                exit (0);
+            }
+
 
 
 
