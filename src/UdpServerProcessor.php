@@ -12,6 +12,10 @@ namespace Rudl;
 interface UdpServerProcessor
 {
 
+    /**
+     * Return tow-character Message ID
+     * @return string
+     */
     public function getMessageId() : string;
 
     public function injectMessage($senderIp, $senderPort, $message);

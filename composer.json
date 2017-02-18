@@ -13,7 +13,8 @@
     }
   ],
   "require": {
-    "php": ">=7.0"
+    "php": ">=7.0",
+    "mongodb/mongodb": "*"
   },
   "autoload": {
     "psr-4": { "Rudl\\": "src/" },

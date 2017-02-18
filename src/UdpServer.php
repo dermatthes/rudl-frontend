@@ -20,7 +20,7 @@ class UdpServer
      */
     private $mProcessors = [];
 
-    public function __construct(string $listenAddr, int $port)
+    public function __construct(string $listenAddr, int $port=62111)
     {
         if( ! ($sock = socket_create(AF_INET, SOCK_DGRAM, 0))) {
             $errorcode = socket_last_error();
@@ -58,11 +58,13 @@ class UdpServer
             //Receive some data
             $recLen = socket_recvfrom($this->mSock, $buf, 8024, MSG_DONTWAIT, $remote_ip, $remote_port);
             if ($recLen == 0) {
-                usleep(100);
+                usleep(5000);
             } else {
                 $_header = substr($buf, 0, 32);
                 $_body = substr($buf, 32);
                 $_msgType = substr($_header, 0, 2);
+
+                // echo "\nIN: msgType: $_msgType, Body: $_body";
                 if (isset ($this->mProcessors[$_msgType])) {
                     $this->mProcessors[$_msgType]->injectMessage($remote_ip, $remote_port, $_body);
                 }
@@ -71,16 +73,31 @@ class UdpServer
             if (time() - $lastFlush < $flushInterval) {
                 continue;
             }
+            $lastFlush = time();
 
+            if ($pid !== false) {
+                $exit = pcntl_waitpid($pid, $status, WNOHANG);
+                if ($exit === 0) {
+                    echo "\nProcess still running. Waiting another round for it to complete.";
+                    continue;
+                }
+                if ($exit != $pid) {
+                    echo "\nGot wrong pid: $exit";
+                }
+                if ( ! pcntl_wifexited($status)) {
+                    echo "\nGot failed exit status for job $pid: Returned $status";
+                }
+            }
 
             $pid = pcntl_fork();
             if ($pid == -1) {
                 throw new \Exception("Cannot fork!");
             } else if ($pid) {
+                echo "\nParent Process - resetting buffer";
+
                 foreach ($this->mProcessors as $key => $value) {
                     $value->flush();
                 }
-                echo "\nParent Process - resetting buffer";
             } else {
                 // Child Process
                 foreach ($this->mProcessors as $key => $value) {
