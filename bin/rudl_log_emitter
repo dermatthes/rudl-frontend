@@ -1,0 +1,17 @@
+#!/usr/bin/php
+<?php
+/**
+ * Created by PhpStorm.
+ * User: matthes
+ * Date: 02.08.17
+ * Time: 14:03
+ */
+
+
+require __DIR__ . "/../vendor/autoload.php";
+
+
+$s = new \Rudl\UdpServer();
+$s->addProcessor(new \Rudl\Processor\ResourceProcessor());
+
+$s->run();

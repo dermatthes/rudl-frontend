@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  rudl:
+    build:
+      context: ../
+      dockerfile: .docker/Dockerfile
+    ports:
+      - "62111:62111/udp"
+      - "27017:27017/tcp"
+    command: ""
+

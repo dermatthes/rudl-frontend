@@ -9,6 +9,8 @@
 namespace Rudl;
 
 
+use MongoDB\Client;
+
 class UdpServer
 {
 
@@ -20,8 +22,15 @@ class UdpServer
      */
     private $mProcessors = [];
 
-    public function __construct(string $listenAddr, int $port=62111)
+    private $mMongoDbConStr;
+
+    public function __construct(string $listenAddr = null, int $port=62111, $mongoDbConnectString="mongodb://localhost:27017")
     {
+        if ($listenAddr == null) {
+            $listenAddr = gethostbyname(gethostname());
+        }
+        $this->log("Listening on $listenAddr:$port");
+        $this->mMongoDbConStr = $mongoDbConnectString;
         if( ! ($sock = socket_create(AF_INET, SOCK_DGRAM, 0))) {
             $errorcode = socket_last_error();
             $errormsg = socket_strerror($errorcode);
@@ -39,8 +48,15 @@ class UdpServer
     }
 
 
+    public function getMongoConnection() : Client {
+        return new \MongoDB\Client("mongodb://localhost:27017");
+    }
+
+
     public function addProcessor (UdpServerProcessor $processor) {
         $this->mProcessors[$processor->getMessageId()] = $processor;
+        $this->log("Installing " . get_class($processor));
+        $processor->installDb($this->getMongoConnection());
     }
 
 
@@ -48,6 +64,15 @@ class UdpServer
 
     private function resetStats() {
 
+    }
+
+    private function log($msg, $level=0) {
+        $warnMsg = "INFO";
+        if ($level == 9) {
+            $warnMsg = "ERROR";
+        }
+        $msg = "\n[" . date ("Y-m-d H:i:s") . "][$warnMsg]: $msg";
+        echo $msg;
     }
 
     public function run($flushInterval = 5) {
@@ -60,17 +85,24 @@ class UdpServer
             if ($recLen == 0) {
                 usleep(5000);
             } else {
-                $_header = substr($buf, 0, 32);
-                $_body = substr($buf, 32);
-                $_msgType = substr($_header, 0, 2);
-
-                // echo "\nIN: msgType: $_msgType, Body: $_body";
-                if (isset ($this->mProcessors[$_msgType])) {
-                    $this->mProcessors[$_msgType]->injectMessage($remote_ip, $remote_port, $_body);
+                $msg = json_decode($buf, true);
+                if ( ! is_array($msg)) {
+                    $this->log("Invalid message from $remote_ip");
+                } else {
+                    //$this->log("Message in from $remote_ip.. $buf");
+                    $_msgType = $msg[0];
+                    // echo "\nIN: msgType: $_msgType, Body: $_body";
+                    if (isset ($this->mProcessors[$_msgType])) {
+                        $this->mProcessors[$_msgType]->injectMessage(
+                            $remote_ip,
+                            $remote_port,
+                            $msg
+                        );
+                    }
                 }
             }
 
-            if (time() - $lastFlush < $flushInterval) {
+            if (time() == $lastFlush || time() % $flushInterval !== 0) {
                 continue;
             }
             $lastFlush = time();
@@ -78,14 +110,14 @@ class UdpServer
             if ($pid !== false) {
                 $exit = pcntl_waitpid($pid, $status, WNOHANG);
                 if ($exit === 0) {
-                    echo "\nProcess still running. Waiting another round for it to complete.";
+                    $this->log("Process still running. Waiting another round for it to complete.");
                     continue;
                 }
                 if ($exit != $pid) {
-                    echo "\nGot wrong pid: $exit";
+                    $this->log("Got wrong pid: $exit");
                 }
                 if ( ! pcntl_wifexited($status)) {
-                    echo "\nGot failed exit status for job $pid: Returned $status";
+                    $this->log( "Got failed exit status for job $pid: Returned $status");
                 }
             }
 
@@ -93,26 +125,19 @@ class UdpServer
             if ($pid == -1) {
                 throw new \Exception("Cannot fork!");
             } else if ($pid) {
-                echo "\nParent Process - resetting buffer";
+                $this->log("Parent Process - resetting buffer");
 
                 foreach ($this->mProcessors as $key => $value) {
                     $value->flush();
                 }
             } else {
                 // Child Process
+                $mongoDb = $this->getMongoConnection();
                 foreach ($this->mProcessors as $key => $value) {
-                    $value->processData();
+                    $value->processData($lastFlush, $mongoDb);
                 }
                 exit (0);
             }
-
-
-
-
-            //sleep(1);
-            //Send back the data to the client
-            //socket_sendto($sock, "OK " . $buf , 100 , 0 , $remote_ip , $remote_port);
-
         }
 
 
