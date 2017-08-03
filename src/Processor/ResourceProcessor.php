@@ -30,9 +30,17 @@ class ResourceProcessor implements UdpServerProcessor
      */
     public function installDb(Client $mongoDb)
     {
-        $mongoDb->selectCollection("Rudl", "Resource_SysId"); //->createIndexes(["timestamp", "sysId"]);
-        $mongoDb->selectCollection("Rudl", "Resource_ClientIp"); //->createIndexes(["timestamp", "clientIp"]);
-        $mongoDb->selectCollection("Rudl", "Resource_Account"); //->createIndexes(["timestamp", "account"]);
+        $col = $mongoDb->selectCollection("Rudl", "Resource_SysId");
+        $col->createIndex(["sysId" => 1, "timestamp" => 1]);
+        $col->createIndex(["timestamp" => 1]);
+
+        $mongoDb->selectCollection("Rudl", "Resource_ClientIp");
+        $col->createIndex(["sysId" => 1, "timestamp" => 1]);
+        $col->createIndex(["timestamp" => 1]);
+
+        $mongoDb->selectCollection("Rudl", "Resource_Account");
+        $col->createIndex(["account" => 1, "timestamp" => 1]);
+        $col->createIndex(["timestamp" => 1]);
     }
 
     public function getMessageId(): string
@@ -53,7 +61,7 @@ class ResourceProcessor implements UdpServerProcessor
         $var["ru_stime_tv_sec"] += $message[7];
     }
 
-    public function injectMessage($senderIp, $senderPort, array $message)
+    public function injectJsonMessage($senderIp, $senderPort, array $message)
     {
         $_sysId = $message[1];
         $_clientIp = $message[2];
@@ -75,6 +83,10 @@ class ResourceProcessor implements UdpServerProcessor
         $this->bufferByClientIp = [];
     }
 
+
+
+
+
     public function processData(int $flushTimestamp, Client $mongoDb)
     {
         $set = [];
@@ -88,10 +100,46 @@ class ResourceProcessor implements UdpServerProcessor
             ];
             $set[] = $rec;
         }
-        if (count ($set) == 0)
-            return;
-        //$this->log("Writing " . count($set) . " datasets...");
-        $mongoDb->selectCollection("Rudl", "Resource_SysId")
-            ->insertMany($set);
+        if (count ($set) > 0) {
+            $mongoDb->selectCollection("Rudl", "Resource_SysId")
+                ->insertMany($set);
+        }
+
+        $set = [];
+        foreach ($this->bufferByClientIp as $clientIp => $value) {
+            $rec = [
+                "timestamp" => new Timestamp(0, $flushTimestamp),
+                "clientIp" => $clientIp,
+                "num_requests" => $value["num_requests"],
+                "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
+                "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]
+            ];
+            $set[] = $rec;
+        }
+        if (count ($set) > 0) {
+            $mongoDb->selectCollection("Rudl", "Resource_ClientIp")
+                ->insertMany($set);
+        }
+
+        $set = [];
+        foreach ($this->bufferByAccount as $account => $value) {
+            $rec = [
+                "timestamp" => new Timestamp(0, $flushTimestamp),
+                "accounty" => $account,
+                "num_requests" => $value["num_requests"],
+                "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
+                "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]
+            ];
+            $set[] = $rec;
+        }
+        if (count ($set) > 0) {
+            $mongoDb->selectCollection("Rudl", "Resource_Account")
+                ->insertMany($set);
+        }
+    }
+
+    public function injectStringMessage($senderIp, $senderPort, string $message)
+    {
+        // Not used
     }
 }

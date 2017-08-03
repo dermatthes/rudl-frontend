@@ -75,6 +75,39 @@ class UdpServer
         echo $msg;
     }
 
+
+    private function _processMessage ($message, $remoteIp, $remotePort) {
+        if (substr($message, 0,1) === "G" && ($dpos = strpos($message, ":")) !== false) {
+            $msgId = (int) substr($message, 1, ($dpos-1));
+            $msg = substr($message, $dpos+1);
+            if ( ! isset ($this->mProcessors[$msgId])) {
+                return false;
+            }
+            $arrayMessage = json_decode($msg, true);
+            if ( ! is_array($arrayMessage)) {
+                $this->log("Invalid message from $remoteIp: $message");
+                return false;
+            }
+            $this->mProcessors[$msgId]->injectJsonMessage(
+                $remoteIp,
+                $remotePort,
+                $arrayMessage
+            );
+            return true;
+
+        } else if (substr($message, 0, 1) == "<") {
+            // Syslog
+            if ( ! isset ($this->mProcessors["syslog"]))
+                return false;
+
+            $this->mProcessors["syslog"]->injectStringMessage($remoteIp, $remotePort, $message);
+        } else {
+            $this->log("Received garbage from $remoteIp: $message");
+            return false;
+        }
+    }
+
+
     public function run($flushInterval = 5) {
         $lastFlush = time();
         $pid = false;
@@ -85,21 +118,7 @@ class UdpServer
             if ($recLen == 0) {
                 usleep(5000);
             } else {
-                $msg = json_decode($buf, true);
-                if ( ! is_array($msg)) {
-                    $this->log("Invalid message from $remote_ip");
-                } else {
-                    //$this->log("Message in from $remote_ip.. $buf");
-                    $_msgType = $msg[0];
-                    // echo "\nIN: msgType: $_msgType, Body: $_body";
-                    if (isset ($this->mProcessors[$_msgType])) {
-                        $this->mProcessors[$_msgType]->injectMessage(
-                            $remote_ip,
-                            $remote_port,
-                            $msg
-                        );
-                    }
-                }
+                $this->_processMessage($buf, $remote_ip, $remote_port);
             }
 
             if (time() == $lastFlush || time() % $flushInterval !== 0) {
@@ -134,7 +153,9 @@ class UdpServer
                 // Child Process
                 $mongoDb = $this->getMongoConnection();
                 foreach ($this->mProcessors as $key => $value) {
+                    $startTime = microtime(true);
                     $value->processData($lastFlush, $mongoDb);
+                    $this->log("Processing " . get_class($value) . ": In " . round((microtime(true) - $startTime), 3) . " sec");
                 }
                 exit (0);
             }

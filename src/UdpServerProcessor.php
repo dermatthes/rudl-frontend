@@ -22,7 +22,9 @@ interface UdpServerProcessor
 
     public function getMessageId() : string;
 
-    public function injectMessage($senderIp, $senderPort, array $message);
+    public function injectJsonMessage($senderIp, $senderPort, array $message);
+
+    public function injectStringMessage ($senderIp, $senderPort, string $message);
 
     public function flush();
 

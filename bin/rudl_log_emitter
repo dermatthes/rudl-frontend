@@ -13,5 +13,6 @@ require __DIR__ . "/../vendor/autoload.php";
 
 $s = new \Rudl\UdpServer();
 $s->addProcessor(new \Rudl\Processor\ResourceProcessor());
+$s->addProcessor(new \Rudl\Processor\SyslogProcessor());
 
 $s->run();
