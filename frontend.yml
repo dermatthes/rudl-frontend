@@ -3,10 +3,21 @@
 bind: "conf.frontend"
 
 extends:
-  - "../golafix-theme-blacktie-dashgum/theme-dashgum.yml"
+  - "vendor/golafix/theme-blacktie-dashgum/theme-dashgum.yml"
 
 
-tpl.dashboard: "tpl/tpl.dashboard.html"
+const.dashgum:
+  title: "Rudl :: System monitoring"
+  name: "Rudl :: Monitor your cluster"
+
+
+
+#const.sidebar.navi:
+
+plugins:
+  - "Rudl\\App\\Plugins\\Logview\\LogviewPlugin"
+
+tpl.dashboard: "tpl/@@.html"
 
 route:
   "/": tpl.dashboard

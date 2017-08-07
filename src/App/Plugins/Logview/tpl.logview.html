@@ -1,0 +1,25 @@
+<call:tpl.site>
+    <param:content>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="content-panel">
+                    <h4>Logfiles</h4>
+                    <hr>
+                    <pre id="logfile">
+                    </pre>
+
+                    <script language="JavaScript">
+                        window.setInterval(function () {
+                            console.log("Request...");
+                            $.get("/api/logview/from/0", function (data) {
+                                console.log("Result");
+                                $("#logfile").prepend(data);
+                            })
+                        }, 2000);
+                    </script>
+                </div>
+            </div>
+        </div>
+
+    </param:content>
+</call:tpl.site>

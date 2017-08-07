@@ -15,7 +15,8 @@
   "require": {
     "php": ">=7.0",
     "mongodb/mongodb": "*",
-    "gismo/gismo": "*"
+    "gismo/gismo": "*",
+    "golafix/theme-blacktie-dashgum": "*"
   },
   "autoload": {
     "psr-4": { "Rudl\\": "src/" },

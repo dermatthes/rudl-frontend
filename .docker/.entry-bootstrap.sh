@@ -5,3 +5,5 @@ set -e
 
 service mongodb start
 apache2ctl start
+
+

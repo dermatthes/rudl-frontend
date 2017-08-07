@@ -29,5 +29,6 @@ RUN chmod 755 /root/entry.sh
 
 
 EXPOSE 62111/udp
+EXPOSE 80/tcp
 
 ENTRYPOINT ["/root/entry.sh"]

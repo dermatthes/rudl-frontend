@@ -10,7 +10,7 @@ apt-get update
 
 echo "[RECIPE] apache2.sh"
 DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
-    apache2 php7.0 php-mongodb composer mongodb ca-certificates
+    apache2 php7.0 apache2-mod-php7.0 php-mongodb composer mongodb ca-certificates
 
 rm -R /var/www/html
 ln -s /opt/www /var/www/html
