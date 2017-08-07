@@ -1,0 +1,21 @@
+[DEVELOPMENT]
+httpRootUrl =
+secureProxyNet =
+secureForwardIpHeader =
+internalNetworks =
+secureNetworks =
+
+[PRODUCTION]
+httpRootUrl =
+secureProxyNet =
+secureForwardIpHeader =
+internalNetworks =
+secureNetworks =
+
+[TESTING]
+; The Full URL to the www directory (used for Testing only)
+httpRootUrl =
+secureProxyNet =
+secureForwardIpHeader =
+internalNetworks =
+secureNetworks =
