@@ -1,0 +1,12 @@
+
+
+bind: "conf.frontend"
+
+extends:
+  - "../golafix-theme-blacktie-dashgum/theme-dashgum.yml"
+
+
+tpl.dashboard: "tpl/tpl.dashboard.html"
+
+route:
+  "/": tpl.dashboard

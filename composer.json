@@ -14,7 +14,8 @@
   ],
   "require": {
     "php": ">=7.0",
-    "mongodb/mongodb": "*"
+    "mongodb/mongodb": "*",
+    "gismo/gismo": "*"
   },
   "autoload": {
     "psr-4": { "Rudl\\": "src/" },

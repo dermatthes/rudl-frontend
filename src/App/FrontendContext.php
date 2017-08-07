@@ -6,7 +6,7 @@
      * Time: 10:58
      */
 
-    namespace YourProject\App;
+    namespace Rudl\App;
 
 
     use Gismo\Component\Application\Context;

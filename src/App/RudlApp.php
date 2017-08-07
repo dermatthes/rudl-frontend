@@ -1,7 +1,7 @@
 <?php
 
     
-    namespace YourProject\App;
+    namespace Rudl\App;
     use Gismo\Component\Config\AppConfig;
     use Gismo\Component\HttpFoundation\Request\Request;
     use Gismo\Component\Plugin\App;
@@ -17,7 +17,7 @@
      * Date: 21.06.17
      * Time: 10:57
      */
-    class YourApp implements App {
+    class RudlApp implements App {
         
         /**
          * @var FrontendContext

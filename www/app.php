@@ -11,7 +11,7 @@
     use Gismo\Component\Config\ConfigLoader;
     use Gismo\Component\HttpFoundation\Request\RequestFactory;
     use Gismo\Component\PhpFoundation\Helper\ErrorHandler;
-    use YourProject\App\YourApp;
+    use Rudl\App\RudlApp;
 
 
 
@@ -38,5 +38,5 @@
     $request = RequestFactory::BuildFromEnv($config);
 
     // App Laden und ausführen.
-    $app = new YourApp($config);
+    $app = new RudlApp($config);
     $app->run($request);

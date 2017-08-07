@@ -1,6 +1,6 @@
 <?php
     
-    namespace YourProject\App;
+    namespace Rudl\App;
     use Gismo\Component\Application\Context;
     use Gismo\Component\HttpFoundation\Request\Request;
     use Gismo\Component\Plugin\Plugin;
