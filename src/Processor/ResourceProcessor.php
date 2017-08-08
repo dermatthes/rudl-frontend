@@ -78,7 +78,7 @@ class ResourceProcessor implements UdpServerProcessor
         $this->_fill($this->bufferByAccount[$_accountId], $message);
 
         $this->bufferByRequest[] = [
-            "timestamp" => new UTCDateTime(new \DateTime()),
+            "timestamp" => new UTCDateTime((int)(microtime(true) * 1000)),
             "sysId" => $_sysId,
             "clientIp" => $_clientIp,
             "account" => $_accountId,
