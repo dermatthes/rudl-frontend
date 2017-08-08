@@ -88,6 +88,7 @@ class UdpServer
 
 
     private function _processMessage ($message, $remoteIp, $remotePort) {
+        $this->log("New Message from $remoteIp: $message");
         if (substr($message, 0,1) === "G" && ($dpos = strpos($message, ":")) !== false) {
             $msgId = (int) substr($message, 1, ($dpos-1));
             $msg = substr($message, $dpos+1);
