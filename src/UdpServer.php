@@ -82,7 +82,7 @@ class UdpServer
         if ($level == 0) {
             $warnMsg = "ERROR";
         }
-        $msg = "\n[" . date ("Y-m-d H:i:s") . "][$warnMsg]: $msg";
+        $msg = "[" . date ("Y-m-d H:i:s") . "][$warnMsg]: $msg\n";
         echo $msg;
     }
 
