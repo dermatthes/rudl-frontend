@@ -29,7 +29,7 @@ class UdpServer
     public function __construct(string $listenAddr = null, int $port=62111, $mongoDbConnectString="mongodb://localhost:27017")
     {
         if ($listenAddr == null) {
-            $listenAddr = gethostbyname(gethostname());
+            $listenAddr = "0.0.0.0";
         }
         $this->log("Listening on $listenAddr:$port", 2);
         $this->mMongoDbConStr = $mongoDbConnectString;
