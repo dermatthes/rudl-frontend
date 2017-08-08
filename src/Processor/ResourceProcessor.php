@@ -45,6 +45,8 @@ class ResourceProcessor implements UdpServerProcessor
 
         $mongoDb->selectCollection("Rudl", "Resource_Request");
         $col->createIndex(["account" => 1, "timestamp" => 1]);
+        $col->createIndex(["sysId" => 1, "timestamp" => 1]);
+        $col->createIndex(["clientIp" => 1, "timestamp" => 1]);
         $col->createIndex(["timestamp" => 1]);
     }
 
