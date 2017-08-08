@@ -10,6 +10,7 @@
     use Golafix\Conf\DotGolafixYml;
     use Golafix\Conf\GolafixRouter;
     use Golafix\Conf\ZipPool;
+    use MongoDB\Client;
 
     /**
      * Created by PhpStorm.
@@ -30,6 +31,10 @@
                 $debug = true;
             $this->mContext = $c = new FrontendContext(true);
             $c->loadYaml(__DIR__ . "/../../frontend.yml");
+            $c[Client::class] = function () {
+                return new \MongoDB\Client("mongodb://84.44.160.73:27017");
+            };
+
             $plugin = new BasePlugin();
             $plugin->onContextInit($c);
         }

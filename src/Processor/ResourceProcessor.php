@@ -11,6 +11,7 @@ namespace Rudl\Processor;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Timestamp;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 use Rudl\UdpServerProcessor;
 
@@ -75,7 +76,7 @@ class ResourceProcessor implements UdpServerProcessor
         $this->_fill($this->bufferByAccount[$_accountId], $message);
 
         $this->bufferByRequest[] = [
-            "timestamp" => new Timestamp(0, time()),
+            "timestamp" => new UTCDateTime(new \DateTime()),
             "sysId" => $_sysId,
             "clientIp" => $_clientIp,
             "account" => $_accountId,
@@ -110,7 +111,7 @@ class ResourceProcessor implements UdpServerProcessor
         $set = [];
         foreach ($this->bufferBySysId as $sysId => $value) {
             $rec = [
-                "timestamp" => new Timestamp(0, $flushTimestamp),
+                "timestamp" => new UTCDateTime($flushTimestamp * 1000),
                 "sysId" => $sysId,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
@@ -126,7 +127,7 @@ class ResourceProcessor implements UdpServerProcessor
         $set = [];
         foreach ($this->bufferByClientIp as $clientIp => $value) {
             $rec = [
-                "timestamp" => new Timestamp(0, $flushTimestamp),
+                "timestamp" => new UTCDateTime($flushTimestamp * 1000),
                 "clientIp" => $clientIp,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
@@ -142,7 +143,7 @@ class ResourceProcessor implements UdpServerProcessor
         $set = [];
         foreach ($this->bufferByAccount as $account => $value) {
             $rec = [
-                "timestamp" => new Timestamp(0, $flushTimestamp),
+                "timestamp" => new UTCDateTime($flushTimestamp * 1000),
                 "accounty" => $account,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],

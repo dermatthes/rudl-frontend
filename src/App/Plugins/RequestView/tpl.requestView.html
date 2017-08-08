@@ -1,0 +1,77 @@
+<call:tpl.site>
+    <param:content>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-panel">
+                    <h4>Requests</h4>
+                    <hr>
+
+
+                    <form class="form-inline" id="logsearch">
+                        <div class="form-group">
+                            <input id="sysId" name="sysId" class="form-control" placeholder="Filter SystemId">
+                        </div>
+                        <div class="form-group">
+                            <input id="clientIp" name="clientIp" class="form-control" placeholder="Filter Client IP">
+                        </div>
+                        <div class="form-group">
+                            <input id="account" name="account" class="form-control" placeholder="Filter Account">
+                        </div>
+                        <div class="form-group">
+                            <button class="form-control" name="send" type="submit">GO</button>
+                        </div>
+                    </form>
+
+
+                    <pre id="logfile">
+                    </pre>
+                    <link href="{{ asset('logview.css') }}" rel="stylesheet">
+                    <script language="JavaScript">
+                        var lastId = "";
+                        var buffer = [];
+                        var limit = "";
+
+
+
+                        $("#logsearch").submit(function (e) {
+                            limit = $(this).serialize();
+                            lastId = "";
+                            buffer.length = 0;
+                            $("#logfile").html("");
+                            e.preventDefault();
+                            window.clearTimeout(to);
+                            refreshLog();
+                            return false;
+                        });
+
+
+
+
+
+                        window.setInterval(function () {
+                            $("#logfile").prepend(buffer.pop())
+                        }, 5);
+
+                        function refreshLog() {
+                            console.log("Request..." , limit);
+                            $.get("/api/requestView/from/" + encodeURI(lastId) + "?" + limit, function (data) {
+                                if (data.lastId !== null) {
+                                    lastId = data.lastId;
+                                    console.log("Result", data);
+                                    for(var i = 0; i < data.result.length; i++ ) {
+                                        buffer.push(data.result[i]);
+                                    }
+
+                                }
+                                to = window.setTimeout(refreshLog, 5000);
+                            });
+                        }
+                        var to = window.setTimeout(refreshLog, 5000);
+                    </script>
+                </div>
+            </div>
+        </div>
+
+    </param:content>
+</call:tpl.site>

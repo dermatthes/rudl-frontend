@@ -14,6 +14,7 @@ use Gismo\Component\Partial\Page;
 use Gismo\Component\Plugin\Plugin;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Timestamp;
+use MongoDB\Client;
 use MongoDB\Driver\Query;
 use Rudl\App\FrontendContext;
 
@@ -39,8 +40,7 @@ class LogviewPlugin implements Plugin
             });
 
 
-            $context->route->add("/api/syslog/from/:lastId", function ($lastId) {
-                $con = new \MongoDB\Client("mongodb://localhost:27017");
+            $context->route->add("/api/syslog/from/:lastId", function ($lastId, Client $con) {
                 $coll = $con->selectCollection("Rudl", "Syslog");
 
 

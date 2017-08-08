@@ -1,0 +1,51 @@
+
+
+.LOG_EMERG {
+    background-color: red;
+    color: black;
+}
+.LOG_ALERT {
+
+    color: red;
+}
+.LOG_ERR {
+    color: red;
+}
+.LOG_CRIT {
+    color: red;
+}
+.LOG_WARN {
+    background-color: yellow;
+}
+.LOG_INFO {
+    color: blue;
+}
+
+.LOG_NOTICE {
+    color: blue;
+}
+
+
+.log_date {
+    color: #0b598d;
+}
+
+.log_hostname {
+    color: orangered;
+}
+
+.log_system {
+    color: brown;
+}
+
+.log_ip {
+    color: #0e6f5c;
+}
+
+#logfile {
+    background-color: transparent;
+    border: none;
+    font-size: 10px;
+}
+
+

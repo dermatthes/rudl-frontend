@@ -14,7 +14,7 @@
   ],
   "require": {
     "php": ">=7.0",
-    "mongodb/mongodb": "*",
+    "mongodb/mongodb": "1.0.5",
     "gismo/gismo": "*",
     "golafix/theme-blacktie-dashgum": "*"
   },
