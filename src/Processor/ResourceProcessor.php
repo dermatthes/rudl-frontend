@@ -21,7 +21,7 @@ class ResourceProcessor implements UdpServerProcessor
     private $bufferBySysId = [];
     private $bufferByClientIp = [];
     private $bufferByAccount = [];
-
+    private $bufferByRequest = [];
 
     /**
      * Return tow-character Message ID
@@ -41,6 +41,10 @@ class ResourceProcessor implements UdpServerProcessor
         $mongoDb->selectCollection("Rudl", "Resource_Account");
         $col->createIndex(["account" => 1, "timestamp" => 1]);
         $col->createIndex(["timestamp" => 1]);
+
+        $mongoDb->selectCollection("Rudl", "Resource_Request");
+        $col->createIndex(["account" => 1, "timestamp" => 1]);
+        $col->createIndex(["timestamp" => 1]);
     }
 
     public function getMessageId(): string
@@ -57,18 +61,28 @@ class ResourceProcessor implements UdpServerProcessor
             ];
         }
         $var["num_requests"]++;
-        $var["ru_utime_tv_sec"] += $message[6];
-        $var["ru_stime_tv_sec"] += $message[7];
+        $var["ru_utime_tv_sec"] += (float)$message[6];
+        $var["ru_stime_tv_sec"] += (float)$message[7];
     }
 
     public function injectJsonMessage($senderIp, $senderPort, array $message)
     {
-        $_sysId = $message[1];
-        $_clientIp = $message[2];
-        $_accountId = $message[4];
+        $_sysId = (string)$message[1];
+        $_clientIp = (string)$message[2];
+        $_accountId = (string)$message[4];
         $this->_fill($this->bufferBySysId[$_sysId], $message);
         $this->_fill($this->bufferByClientIp[$_clientIp], $message);
         $this->_fill($this->bufferByAccount[$_accountId], $message);
+
+        $this->bufferByRequest[] = [
+            "timestamp" => new Timestamp(0, time()),
+            "sysId" => $_sysId,
+            "clientIp" => $_clientIp,
+            "account" => $_accountId,
+            "ru_utime_tv_sec" => (float)$message[6],
+            "ru_stime_tv_sec" => (float)$message[7],
+            "request" => (string)$message[8]
+        ];
     }
 
     public function flush()
@@ -81,6 +95,9 @@ class ResourceProcessor implements UdpServerProcessor
 
         unset ($this->bufferByClientIp);
         $this->bufferByClientIp = [];
+
+        unset ($this->bufferByRequest);
+        $this->bufferByRequest = [];
     }
 
 
@@ -94,7 +111,7 @@ class ResourceProcessor implements UdpServerProcessor
             $rec = [
                 "timestamp" => new Timestamp(0, $flushTimestamp),
                 "sysId" => $sysId,
-                "num_requests" => $value["num_requests"],
+                "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
                 "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]
             ];
@@ -110,7 +127,7 @@ class ResourceProcessor implements UdpServerProcessor
             $rec = [
                 "timestamp" => new Timestamp(0, $flushTimestamp),
                 "clientIp" => $clientIp,
-                "num_requests" => $value["num_requests"],
+                "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
                 "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]
             ];
@@ -126,7 +143,7 @@ class ResourceProcessor implements UdpServerProcessor
             $rec = [
                 "timestamp" => new Timestamp(0, $flushTimestamp),
                 "accounty" => $account,
-                "num_requests" => $value["num_requests"],
+                "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
                 "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]
             ];
@@ -135,6 +152,12 @@ class ResourceProcessor implements UdpServerProcessor
         if (count ($set) > 0) {
             $mongoDb->selectCollection("Rudl", "Resource_Account")
                 ->insertMany($set);
+        }
+
+
+        if (count ($this->bufferByRequest) > 0) {
+            $mongoDb->selectCollection("Rudl", "Resource_Request")
+                ->insertMany($this->bufferByRequest);
         }
     }
 

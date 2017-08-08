@@ -3,6 +3,9 @@ FROM ubuntu:16.04
 MAINTAINER Matthias Leuffen <leuffen@continue.de>
 MAINTAINER Laurenz Gohr <gohr@continue.de>
 
+
+ARG SKIP_COMPOSER_UPDATE="0"
+
 # Install deps
 
 WORKDIR /root/
@@ -17,7 +20,7 @@ ADD / /opt/
 
 ADD .docker/.dockerfile-configure.sh /root/
 RUN chmod 755 /root/.dockerfile-configure.sh
-RUN /root/.dockerfile-configure.sh
+RUN /root/.dockerfile-configure.sh $SKIP_COMPOSER_UPDATE
 
 ADD .docker/ /root/
 

@@ -15,6 +15,8 @@ class UdpServer
 {
 
 
+    private $mLogLevel = 5;
+
     private $mSock = false;
 
     /**
@@ -29,7 +31,7 @@ class UdpServer
         if ($listenAddr == null) {
             $listenAddr = gethostbyname(gethostname());
         }
-        $this->log("Listening on $listenAddr:$port");
+        $this->log("Listening on $listenAddr:$port", 5);
         $this->mMongoDbConStr = $mongoDbConnectString;
         if( ! ($sock = socket_create(AF_INET, SOCK_DGRAM, 0))) {
             $errorcode = socket_last_error();
@@ -55,7 +57,7 @@ class UdpServer
 
     public function addProcessor (UdpServerProcessor $processor) {
         $this->mProcessors[$processor->getMessageId()] = $processor;
-        $this->log("Installing " . get_class($processor));
+        $this->log("Installing " . get_class($processor), 5);
         $processor->installDb($this->getMongoConnection());
     }
 
@@ -66,8 +68,17 @@ class UdpServer
 
     }
 
-    private function log($msg, $level=0) {
-        $warnMsg = "INFO";
+    public function setLogLevel ($level) {
+        $this->mLogLevel = $level;
+    }
+
+    private function log($msg, $level=9) {
+        if ($level > $this->mLogLevel)
+            return;
+        $warnMsg = "DEBUG";
+        if ($level == 5) {
+            $warnMsg = "INFO";
+        }
         if ($level == 9) {
             $warnMsg = "ERROR";
         }
@@ -85,7 +96,7 @@ class UdpServer
             }
             $arrayMessage = json_decode($msg, true);
             if ( ! is_array($arrayMessage)) {
-                $this->log("Invalid message from $remoteIp: $message");
+                $this->log("Invalid message from $remoteIp: $message",5);
                 return false;
             }
             $this->mProcessors[$msgId]->injectJsonMessage(
@@ -102,7 +113,7 @@ class UdpServer
 
             $this->mProcessors["syslog"]->injectStringMessage($remoteIp, $remotePort, $message);
         } else {
-            $this->log("Received garbage from $remoteIp: $message");
+            $this->log("Received garbage from $remoteIp: $message", 5);
             return false;
         }
     }
@@ -129,14 +140,14 @@ class UdpServer
             if ($pid !== false) {
                 $exit = pcntl_waitpid($pid, $status, WNOHANG);
                 if ($exit === 0) {
-                    $this->log("Process still running. Waiting another round for it to complete.");
+                    $this->log("Process still running. Waiting another round for it to complete.", 5);
                     continue;
                 }
                 if ($exit != $pid) {
-                    $this->log("Got wrong pid: $exit");
+                    $this->log("Got wrong pid: $exit", 5);
                 }
                 if ( ! pcntl_wifexited($status)) {
-                    $this->log( "Got failed exit status for job $pid: Returned $status");
+                    $this->log( "Got failed exit status for job $pid: Returned $status", 5);
                 }
             }
 

@@ -3,8 +3,4 @@
 ## set -e: Stop on error
 set -e
 
-
-while [ true ]
-do
-    sleep 100
-done
+/opt/bin/rudl_log_emitter

@@ -39,15 +39,17 @@ set -e
 
 
 echo "Starting image in interactive mode... (Parameters (#$#): $@)";
-docker-compose -f $COMPOSER_FILE build
+
 
 
 if (( $# < 1 ))
 then
+    docker-compose -f $COMPOSER_FILE build --build-arg SKIP_COMPOSER_UPDATE=0 $PROJECT_NAME
     CMD="docker-compose -f $COMPOSER_FILE up"
     echo "[NO PARAMETERS] Running '$CMD'..."
     eval $CMD
 else
+    docker-compose -f $COMPOSER_FILE build --build-arg SKIP_COMPOSER_UPDATE=1 $PROJECT_NAME
     echo "Starting manual service: $MAIN_SERVICE from Composer-File $COMPOSER_FILE (defined in .env)..."
     CMD="docker-compose -f $COMPOSER_FILE run -v '$PWD/:/opt/' --service-ports $MAIN_SERVICE $1 $2 $3 $4 $5"
     echo "[WITH PARAMETERS] Running '$CMD'..."

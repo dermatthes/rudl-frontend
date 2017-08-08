@@ -1,21 +1,89 @@
 <call:tpl.site>
     <param:content>
+
         <div class="row">
             <div class="col-md-12">
-                <div class="content-panel">
-                    <h4>Logfiles</h4>
+                <div class="form-panel">
+                    <h4>Syslog</h4>
                     <hr>
+
+
+                    <form class="form-inline" id="logsearch">
+                        <div class="form-group">
+                            <input id="hostname" name="hostname" class="form-control" placeholder="Filter Hostname">
+                        </div>
+                        <div class="form-group">
+                            <input id="clientIp" name="clientIp" class="form-control" placeholder="Filter Client IP">
+                        </div>
+                        <div class="form-group">
+                            <input id="system" name="system" class="form-control" placeholder="Filter system">
+                        </div>
+                        <div class="form-group">
+                            <input id="filter" name="filter" class="form-control" placeholder="Filter">
+                        </div>
+                        <div class="form-group">
+                            <select id="severity" name="severity" class="form-control" placeholder="Severity">
+                                <option value="">-ALL-</option>
+                                <option value="0">EMERG</option>
+                                <option value="1">ALERT</option>
+                                <option value="2">CRIT</option>
+                                <option value="3">ERR</option>
+                                <option value="4">WARNING</option>
+                                <option value="5">NOTICE</option>
+                                <option value="6">INFO</option>
+                                <option value="7">DEBUG</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="form-control" name="send" type="submit">GO</button>
+                        </div>
+                    </form>
+
+
                     <pre id="logfile">
                     </pre>
-
+                    <link href="{{ asset('logview.css') }}" rel="stylesheet">
                     <script language="JavaScript">
+                        var lastId = "";
+                        var buffer = [];
+                        var limit = "";
+
+
+
+                        $("#logsearch").submit(function (e) {
+                            limit = $(this).serialize();
+                            lastId = "";
+                            buffer.length = 0;
+                            $("#logfile").html("");
+                            e.preventDefault();
+                            window.clearTimeout(to);
+                            refreshLog();
+                            return false;
+                        });
+
+
+
+
+
                         window.setInterval(function () {
-                            console.log("Request...");
-                            $.get("/api/logview/from/0", function (data) {
-                                console.log("Result");
-                                $("#logfile").prepend(data);
-                            })
-                        }, 2000);
+                            $("#logfile").prepend(buffer.pop())
+                        }, 5);
+
+                        function refreshLog() {
+                            console.log("Request..." , limit);
+                            $.get("/api/syslog/from/" + encodeURI(lastId) + "?" + limit, function (data) {
+                                if (data.lastId !== null) {
+                                    lastId = data.lastId;
+                                    console.log("Result", data);
+                                    for(var i = 0; i < data.result.length; i++ ) {
+                                        buffer.push(data.result[i]);
+                                    }
+
+                                }
+                                to = window.setTimeout(refreshLog, 5000);
+                            });
+                        }
+                        var to = window.setTimeout(refreshLog, 5000);
                     </script>
                 </div>
             </div>

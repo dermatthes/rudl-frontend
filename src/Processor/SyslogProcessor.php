@@ -30,6 +30,7 @@ class SyslogProcessor implements UdpServerProcessor
         $col->createIndex(["hostname" => 1, "timestamp" => 1]);
         $col->createIndex(["clientIp" => 1, "timestamp" => 1]);
         $col->createIndex(["timestamp" => 1]);
+        $col->createIndex(["$**" => "text"]);
 
     }
 
