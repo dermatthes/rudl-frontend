@@ -31,7 +31,7 @@ class UdpServer
         if ($listenAddr == null) {
             $listenAddr = gethostbyname(gethostname());
         }
-        $this->log("Listening on $listenAddr:$port", 5);
+        $this->log("Listening on $listenAddr:$port", 2);
         $this->mMongoDbConStr = $mongoDbConnectString;
         if( ! ($sock = socket_create(AF_INET, SOCK_DGRAM, 0))) {
             $errorcode = socket_last_error();
@@ -57,7 +57,7 @@ class UdpServer
 
     public function addProcessor (UdpServerProcessor $processor) {
         $this->mProcessors[$processor->getMessageId()] = $processor;
-        $this->log("Installing " . get_class($processor), 5);
+        $this->log("Installing " . get_class($processor), 2);
         $processor->installDb($this->getMongoConnection());
     }
 
@@ -76,10 +76,10 @@ class UdpServer
         if ($level > $this->mLogLevel)
             return;
         $warnMsg = "DEBUG";
-        if ($level == 5) {
+        if ($level <= 5) {
             $warnMsg = "INFO";
         }
-        if ($level == 9) {
+        if ($level == 0) {
             $warnMsg = "ERROR";
         }
         $msg = "\n[" . date ("Y-m-d H:i:s") . "][$warnMsg]: $msg";
@@ -88,7 +88,7 @@ class UdpServer
 
 
     private function _processMessage ($message, $remoteIp, $remotePort) {
-        $this->log("New Message from $remoteIp: $message");
+        $this->log("New Message from $remoteIp: $message", 5);
         if (substr($message, 0,1) === "G" && ($dpos = strpos($message, ":")) !== false) {
             $msgId = (int) substr($message, 1, ($dpos-1));
             $msg = substr($message, $dpos+1);
@@ -97,7 +97,7 @@ class UdpServer
             }
             $arrayMessage = json_decode($msg, true);
             if ( ! is_array($arrayMessage)) {
-                $this->log("Invalid message from $remoteIp: $message",5);
+                $this->log("Invalid message from $remoteIp: $message",3);
                 return false;
             }
             $this->mProcessors[$msgId]->injectJsonMessage(
@@ -114,7 +114,7 @@ class UdpServer
 
             $this->mProcessors["syslog"]->injectStringMessage($remoteIp, $remotePort, $message);
         } else {
-            $this->log("Received garbage from $remoteIp: $message", 5);
+            $this->log("Received garbage from $remoteIp: $message", 3);
             return false;
         }
     }
