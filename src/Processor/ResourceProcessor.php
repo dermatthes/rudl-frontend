@@ -81,7 +81,8 @@ class ResourceProcessor implements UdpServerProcessor
             "account" => $_accountId,
             "ru_utime_tv_sec" => (float)$message[6],
             "ru_stime_tv_sec" => (float)$message[7],
-            "request" => (string)$message[8]
+            "request" => (string)$message[8],
+            "duration_sec" => (float)$message[9]
         ];
     }
 
