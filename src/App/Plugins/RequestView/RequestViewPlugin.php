@@ -78,6 +78,7 @@ class RequestViewPlugin implements Plugin
                     $line = "<br>";
                     $line .= "<span class='log_date'>" . htmlentities("[{$dateTime->format("Y-m-d H:i:s")}]") . "</span>";
                     $line .= "<span class='log_hostname'>" . htmlentities("[{$cur->sysId}]") . "</span>";
+                    $line .= "<span class='log_hostname'>" . htmlentities("[{$cur->hostname}]") . "</span>";
                     $line .= "<span class='log_ip'>" . htmlentities("[{$cur->clientIp}]") . "</span>";
                     $line .= "<span class='log_system'>" . htmlentities("[{$cur->account}]") . "</span>";
                     $line .= "<span class=''>" . htmlentities("[" . number_format($cur->ru_utime_tv_sec, 3) . "]") . "</span>";
