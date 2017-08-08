@@ -64,15 +64,17 @@ class ResourceProcessor implements UdpServerProcessor
             ];
         }
         $var["num_requests"]++;
-        $var["ru_utime_tv_sec"] += (float)$message[6];
-        $var["ru_stime_tv_sec"] += (float)$message[7];
+        $var["ru_utime_tv_sec"] += (float)$message[5];
+        $var["ru_stime_tv_sec"] += (float)$message[6];
     }
 
     public function injectJsonMessage($senderIp, $senderPort, array $message)
     {
-        $_sysId = (string)$message[1];
-        $_clientIp = (string)$message[2];
-        $_accountId = (string)$message[4];
+        $_sysId = (string)$message[0];
+
+        $_hostname = (string)$message[1];
+        $_accountId = (string)$message[2];
+        $_clientIp = (string)$message[3];
         $this->_fill($this->bufferBySysId[$_sysId], $message);
         $this->_fill($this->bufferByClientIp[$_clientIp], $message);
         $this->_fill($this->bufferByAccount[$_accountId], $message);
@@ -82,10 +84,10 @@ class ResourceProcessor implements UdpServerProcessor
             "sysId" => $_sysId,
             "clientIp" => $_clientIp,
             "account" => $_accountId,
-            "ru_utime_tv_sec" => (float)$message[6],
-            "ru_stime_tv_sec" => (float)$message[7],
-            "request" => (string)$message[8],
-            "duration_sec" => (float)$message[9]
+            "ru_utime_tv_sec" => (float)$message[5],
+            "ru_stime_tv_sec" => (float)$message[6],
+            "request" => (string)$message[7],
+            "duration_sec" => (float)$message[8]
         ];
     }
 
@@ -146,7 +148,7 @@ class ResourceProcessor implements UdpServerProcessor
         foreach ($this->bufferByAccount as $account => $value) {
             $rec = [
                 "timestamp" => new UTCDateTime($flushTimestamp * 1000),
-                "accounty" => $account,
+                "account" => $account,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
                 "ru_stime_tv_sec" => (float)$value["ru_stime_tv_sec"]

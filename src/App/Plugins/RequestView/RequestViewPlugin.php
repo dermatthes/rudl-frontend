@@ -72,10 +72,11 @@ class RequestViewPlugin implements Plugin
                     if ($ret["lastId"] === null)
                         $ret["lastId"] = (string)$cur->_id;
 
-                    print_r ($cur->timestamp);
-                    $date = new UTCDateTime($cur->timestamp->timestamp);
+                    $dateTime = $cur->timestamp->toDateTime();
+                    /* @var $dateTime \DateTime */
+
                     $line = "<br>";
-                    $line .= "<span class='log_date'>" . htmlentities("[$date]") . "</span>";
+                    $line .= "<span class='log_date'>" . htmlentities("[{$dateTime->format("Y-m-d H:i:s")}]") . "</span>";
                     $line .= "<span class='log_hostname'>" . htmlentities("[{$cur->sysId}]") . "</span>";
                     $line .= "<span class='log_ip'>" . htmlentities("[{$cur->clientIp}]") . "</span>";
                     $line .= "<span class='log_system'>" . htmlentities("[{$cur->account}]") . "</span>";
