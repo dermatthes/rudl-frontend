@@ -80,7 +80,8 @@ class RequestViewPlugin implements Plugin
                     $line .= "<span class='log_hostname'>" . htmlentities("[{$cur->sysId}]") . "</span>";
                     $line .= "<span class='log_ip'>" . htmlentities("[{$cur->clientIp}]") . "</span>";
                     $line .= "<span class='log_system'>" . htmlentities("[{$cur->account}]") . "</span>";
-                    $line .= "<span class=''>" . htmlentities("[{$cur->ru_utime_tv_sec}]") . "</span>";
+                    $line .= "<span class=''>" . htmlentities("[" . number_format($cur->ru_utime_tv_sec, 3) . "]") . "</span>";
+                    $line .= "<span class=''>" . htmlentities("[" . number_format($cur->duration_sec, 3) . "]") . "</span>";
                     $line .= "<span class=''>" . htmlentities(" {$cur->request}") . "</span>";
                     $ret["result"][] = $line;
                 }
