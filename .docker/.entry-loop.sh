@@ -3,8 +3,8 @@
 ## set -e: Stop on error
 set -e
 
-echo "Waiting 15sec for mongodb to become ready..."
-sleep 15
+echo "Waiting 60sec for mongodb to become ready..."
+sleep 60
 
 
 
