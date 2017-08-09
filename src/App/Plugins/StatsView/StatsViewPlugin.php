@@ -18,6 +18,7 @@ use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 use MongoDB\Driver\Query;
 use Rudl\App\FrontendContext;
+use Rudl\App\Plugins\StatsView\Stats\HourOfDayResourceStat;
 
 class StatsViewPlugin implements Plugin
 {
@@ -43,34 +44,14 @@ class StatsViewPlugin implements Plugin
             });
 
 
-            $context->route->add("/api/statsView/from/:lastId", function ($lastId, Client $con) {
+            $context->route->add("/api/statsView/:class", function ($class, Client $con) {
                 $coll = $con->selectCollection("Rudl", "Resource_SysId");
 
-                $ret = [];
+                $class = '\Rudl\App\Plugins\StatsView\Stats\\' . $class;
+                $proc = new $class();
 
-                $res = $coll->aggregate([
-                    [ '$match' => [ 'timestamp' => ['$gte' => new UTCDateTime(strtotime("- 1 day") * 1000)] ] ],
-                    [
-                        '$group' => [
-                            '_id' => '$sysId',
-                            'num_requests' => [ '$sum' => '$num_requests'],
-                            'ru_utime_tv_sec' => [ '$sum' => '$ru_utime_tv_sec'],
-                            'ru_stime_tv_sec' => [ '$sum' => '$ru_stime_tv_sec']
-                        ]
-                    ]
-                ]);
-
-
-                print_r ($res);
-
-                $ret = [];
-                foreach ($res as $data) {
-                    $ret[] = $data;
-                }
-
-                print_r ($ret);
                 header ("Content-Type: text/json");
-                echo json_encode($res);
+                echo json_encode($proc->query($con));
             });
 
 
