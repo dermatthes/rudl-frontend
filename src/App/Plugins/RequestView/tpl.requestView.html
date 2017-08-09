@@ -22,6 +22,7 @@
                             <button class="form-control" name="send" type="submit">GO</button>
                         </div>
                     </form>
+                    <a class="btn btn-primary btn-sm pull-right" onclick='$("html, body").animate({ scrollTop: $(document).height() }, 200);'><i class="fa fa-angle-down"></i></a>
 
 
                     <pre id="logfile">
@@ -31,8 +32,6 @@
                         var lastId = "";
                         var buffer = [];
                         var limit = "";
-
-
 
                         $("#logsearch").submit(function (e) {
                             limit = $(this).serialize();
@@ -45,13 +44,20 @@
                             return false;
                         });
 
-
-
-
-
                         window.setInterval(function () {
-                            $("#logfile").prepend(buffer.pop())
-                        }, 5);
+                            var limit = Math.ceil(buffer.length / 3);
+                            var onSiteEnd = false;
+                            if($(window).scrollTop() + $(window).height() == $(document).height()) {
+                                onSiteEnd = true;
+                            }
+
+                            for (var i = 0; i < limit; i++)
+                                $("#logfile").append(buffer.pop());
+
+                            if (onSiteEnd) {
+                                window.scrollTo(0, (document.body.scrollHeight || document.documentElement.scrollHeight) + 5);
+                            }
+                        }, 200);
 
                         function refreshLog() {
                             console.log("Request..." , limit);

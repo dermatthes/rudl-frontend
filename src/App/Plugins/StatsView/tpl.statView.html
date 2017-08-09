@@ -1,0 +1,47 @@
+<call:tpl.site>
+    <param:content>
+        <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
+        <div class="row mt">
+            <div class="col-lg-6">
+                <div class="content-panel">
+                    <h4><i class="fa fa-angle-right"></i>Requests [hits/h]</h4>
+                    <div class="panel-body">
+                        <div id="requests-graph" class="graph"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script language="JavaScript">
+            var data = [];
+
+            Morris.Line({
+                element: 'requests-graph',
+                data: data,
+                xkey: 'period',
+                ykeys: ['licensed', 'sorned'],
+                labels: ['Licensed', 'Off the road'],
+                lineColors:['#4ECDC4','#ed5565']
+            });
+
+            function refreshLog() {
+
+                $.get("/api/statsView/from/" + encodeURI(lastId) + "?" + limit, function (data) {
+                    if (data.lastId !== null) {
+                        lastId = data.lastId;
+                        console.log("Result", data);
+                        for(var i = 0; i < data.result.length; i++ ) {
+                            buffer.push(data.result[i]);
+                        }
+
+                    }
+                    to = window.setTimeout(refreshLog, 5000);
+                });
+            }
+            var to = window.setTimeout(refreshLog, 0);
+        </script>
+
+
+    </param:content>
+</call:tpl.site>

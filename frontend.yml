@@ -17,6 +17,7 @@ const.dashgum:
 plugins:
   - "Rudl\\App\\Plugins\\Logview\\LogviewPlugin"
   - "Rudl\\App\\Plugins\\RequestView\\RequestViewPlugin"
+  - "Rudl\\App\\Plugins\\StatsView\\StatsViewPlugin"
 tpl.dashboard: "tpl/@@.html"
 
 route:
