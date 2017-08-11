@@ -26,6 +26,7 @@ class HourOfDayResourceStat
                         'date_hod' => '$date_hod',
                         'sysId' =>'$sysId'
                     ],
+                    'timestamp' => ['$min' => '$timestamp'],
                     'num_requests' => [ '$sum' => '$num_requests'],
                     'ru_utime_tv_sec' => [ '$sum' => '$ru_utime_tv_sec'],
                     'ru_stime_tv_sec' => [ '$sum' => '$ru_stime_tv_sec']
@@ -33,33 +34,46 @@ class HourOfDayResourceStat
             ],
             [
                 '$sort' => [
-                    "date_hod" => 1,
-                    "sysId" => 1
+                    "_id.date_hod" => 1
                 ]
             ],
             [
-                '$group' => [
-                    '_id' => [
-                        "date_hod" => '$_id.date_hod'
-                    ],
-                    '$sysId' => '$num_requests'
+                '$project' => [
+                    '__groupKey' => '$_id.date_hod',
+                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-d% %H:00:00', 'date' => '$timestamp'] ],
+                    '__key' => '$_id.sysId',
+                    '__value' => '$num_requests'
                 ]
             ]
+
         ]);
 
+        //$coll->
         $ret = [];
 
-        $hodArr = [];
+        $allKeys = [];
         foreach ($res as $data) {
-            $data = (array)$data;
-            $data["_id"] = (array)$data["_id"];
-            $ret[] = $data;
+            if ( ! isset ($ret[$data["__groupKey"]]))
+                $ret[$data["__groupKey"]] = [];
+            $ret[$data["__groupKey"]][$data["__key"]] = $data["__value"];
+            $allKeys[$data["__key"]] = $data["__key"];
+            foreach ($data as $key => $value) {
+                if (substr ($key,0, 1) == "_")
+                    continue;
+                $ret[$data["__groupKey"]][$key] = (string)$value;
 
-
+            }
         }
 
-        print_r ($ret);
-        return $ret;
+
+
+        $chart = [
+            "data" => $ret,
+            "xkey" => "time",
+            "ykeys" => array_keys($allKeys),
+            "labels" => array_keys($allKeys)
+        ];
+        return $chart;
 
     }
 

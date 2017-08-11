@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:17.04
 
 MAINTAINER Matthias Leuffen <leuffen@continue.de>
 MAINTAINER Laurenz Gohr <gohr@continue.de>

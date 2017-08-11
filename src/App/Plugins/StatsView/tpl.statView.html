@@ -1,6 +1,8 @@
 <call:tpl.site>
     <param:content>
         <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script src="http://cdn.oesmith.co.uk/morris-0.4.3.min.js"></script>
         <div class="row mt">
             <div class="col-lg-6">
                 <div class="content-panel">
@@ -14,32 +16,12 @@
 
 
         <script language="JavaScript">
-            var data = [];
-
-            Morris.Line({
-                element: 'requests-graph',
-                data: data,
-                xkey: 'period',
-                ykeys: ['licensed', 'sorned'],
-                labels: ['Licensed', 'Off the road'],
-                lineColors:['#4ECDC4','#ed5565']
+            $.get("/api/statsView/HourOfDayResourceStat", function (data) {
+                data.element = 'requests-graph';
+                Morris.Line(data);
             });
 
-            function refreshLog() {
 
-                $.get("/api/statsView/from/" + encodeURI(lastId) + "?" + limit, function (data) {
-                    if (data.lastId !== null) {
-                        lastId = data.lastId;
-                        console.log("Result", data);
-                        for(var i = 0; i < data.result.length; i++ ) {
-                            buffer.push(data.result[i]);
-                        }
-
-                    }
-                    to = window.setTimeout(refreshLog, 5000);
-                });
-            }
-            var to = window.setTimeout(refreshLog, 0);
         </script>
 
 
