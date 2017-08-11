@@ -34,13 +34,13 @@ class HourOfDayResourceStat
             ],
             [
                 '$sort' => [
-                    "_id.date_hod" => 1
+                    "timestamp" => 1
                 ]
             ],
             [
                 '$project' => [
-                    '__groupKey' => '$_id.date_hod',
-                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-d% %H:00:00', 'date' => '$timestamp'] ],
+                    '__groupKey' => '$timestamp',
+                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-%d %H:00', 'date' => '$timestamp'] ],
                     '__key' => '$_id.sysId',
                     '__value' => '$num_requests'
                 ]
@@ -53,22 +53,27 @@ class HourOfDayResourceStat
 
         $allKeys = [];
         foreach ($res as $data) {
-            if ( ! isset ($ret[$data["__groupKey"]]))
-                $ret[$data["__groupKey"]] = [];
-            $ret[$data["__groupKey"]][$data["__key"]] = $data["__value"];
+            //print_r ($data);
+            if ( ! isset ($ret[(string)$data["__groupKey"]]))
+                $ret[(string)$data["__groupKey"]] = [];
+            $ret[(string)$data["__groupKey"]][$data["__key"]] = $data["__value"];
             $allKeys[$data["__key"]] = $data["__key"];
             foreach ($data as $key => $value) {
                 if (substr ($key,0, 1) == "_")
                     continue;
-                $ret[$data["__groupKey"]][$key] = (string)$value;
+                $ret[(string)$data["__groupKey"]][$key] = (string)$value;
 
             }
         }
 
+        $arData = [];
+        foreach ($ret as $cur)
+            $arData[] = $cur;
+
 
 
         $chart = [
-            "data" => $ret,
+            "data" => $arData,
             "xkey" => "time",
             "ykeys" => array_keys($allKeys),
             "labels" => array_keys($allKeys)
