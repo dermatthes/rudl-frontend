@@ -15,7 +15,7 @@
 
 
 
-    define("GISMO_BOOTSTRAP_FILE", __DIR__ . "/../vendor/autoload.php");
+    define("GISMO_BOOTSTRAP_FILE", __DIR__ . "/../src/bootstrap.inc.php");
 
     ini_set("display_errors", 1);
 

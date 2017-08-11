@@ -8,7 +8,7 @@
  */
 
 
-require __DIR__ . "/../vendor/autoload.php";
+require __DIR__ . "/../src/bootstrap.inc.php";
 
 
 $s = new \Rudl\UdpServer();
