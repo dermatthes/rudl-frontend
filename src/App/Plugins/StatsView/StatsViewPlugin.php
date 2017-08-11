@@ -29,7 +29,7 @@ class StatsViewPlugin implements Plugin
             $context["const.sidebar.navi"] = $context->filter(function ($§§input) {
                 $§§input[] = [
                     "name" => "Stats",
-                    "icon" => "fa-board",
+                    "icon" => "fa-bar-chart-o",
                     "link" => "/stats"
                 ];
                 return $§§input;

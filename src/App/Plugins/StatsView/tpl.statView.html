@@ -6,23 +6,37 @@
         <div class="row mt">
             <div class="col-lg-6">
                 <div class="content-panel">
-                    <h4><i class="fa fa-angle-right"></i>Requests [hits/h]</h4>
+                    <h4><i class="fa fa-angle-right"></i> Requests [hits/h]</h4>
                     <div class="panel-body">
                         <div id="requests-graph" class="graph"></div>
                     </div>
                 </div>
+                <script language="JavaScript">
+                    $.get("/api/statsView/HourOfDayResourceStat", function (data) {
+                        data.element = 'requests-graph';
+                        Morris.Line(data);
+                    });
+                </script>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="content-panel">
+                    <h4><i class="fa fa-angle-right"></i> CPU Consumption [sec/h]</h4>
+                    <div class="panel-body">
+                        <div id="requests-graph-cpu" class="graph"></div>
+                    </div>
+                </div>
+                <script language="JavaScript">
+                    $.get("/api/statsView/HourOfDayResourceStatCpu", function (data) {
+                        data.element = 'requests-graph-cpu';
+                        Morris.Line(data);
+                    });
+                </script>
             </div>
         </div>
 
 
-        <script language="JavaScript">
-            $.get("/api/statsView/HourOfDayResourceStat", function (data) {
-                data.element = 'requests-graph';
-                Morris.Line(data);
-            });
 
-
-        </script>
 
 
     </param:content>
