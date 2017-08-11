@@ -3,7 +3,7 @@
 ## set -e: Stop on error
 set -e
 
-service mongodb start
+gosu mongodb mongod --fork --config /etc/mongod.conf
 apache2ctl start
 
 
