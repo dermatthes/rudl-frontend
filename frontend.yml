@@ -18,6 +18,8 @@ plugins:
   - "Rudl\\App\\Plugins\\Logview\\LogviewPlugin"
   - "Rudl\\App\\Plugins\\RequestView\\RequestViewPlugin"
   - "Rudl\\App\\Plugins\\StatsView\\StatsViewPlugin"
+  - "Rudl\\App\\Plugins\\UdpServer\\UdpServerPlugin"
+
 tpl.dashboard: "tpl/@@.html"
 
 route:

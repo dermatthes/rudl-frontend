@@ -21,12 +21,18 @@ class HourOfDayResourceStat
         $res = $coll->aggregate([
             [ '$match' => [ 'timestamp' => ['$gte' => new UTCDateTime(strtotime("- 1 day") * 1000)] ] ],
             [
+                '$project' => [
+                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-%d %H:00', 'date' => '$timestamp'] ],
+                    'num_requests' => '$num_requests',
+                    'sysId' => '$sysId'
+                ]
+            ],
+            [
                 '$group' => [
                     '_id' => [
-                        'date_hod' => '$date_hod',
+                        'time' => '$time',
                         'sysId' =>'$sysId'
                     ],
-                    'timestamp' => ['$min' => '$timestamp'],
                     'num_requests' => [ '$sum' => '$num_requests'],
                     'ru_utime_tv_sec' => [ '$sum' => '$ru_utime_tv_sec'],
                     'ru_stime_tv_sec' => [ '$sum' => '$ru_stime_tv_sec']
@@ -34,13 +40,13 @@ class HourOfDayResourceStat
             ],
             [
                 '$sort' => [
-                    "timestamp" => 1
+                    "_id.time" => 1
                 ]
             ],
             [
                 '$project' => [
-                    '__groupKey' => '$timestamp',
-                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-%d %H:00', 'date' => '$timestamp'] ],
+                    '__groupKey' => '$_id.time',
+                    'time' => '$_id.time',
                     '__key' => '$_id.sysId',
                     '__value' => '$num_requests'
                 ]
@@ -54,9 +60,11 @@ class HourOfDayResourceStat
         $allKeys = [];
         foreach ($res as $data) {
             //print_r ($data);
+            $data["time"] = (new \DateTime($data["time"], new \DateTimeZone("UTC")))->setTimezone(new \DateTimeZone("Europe/Berlin"))->format("Y-m-d H:i");
+
             if ( ! isset ($ret[(string)$data["__groupKey"]]))
                 $ret[(string)$data["__groupKey"]] = [];
-            $ret[(string)$data["__groupKey"]][$data["__key"]] = $data["__value"];
+            $ret[(string)$data["__groupKey"]][$data["__key"]] = round($data["__value"], 2);
             $allKeys[$data["__key"]] = $data["__key"];
             foreach ($data as $key => $value) {
                 if (substr ($key,0, 1) == "_")

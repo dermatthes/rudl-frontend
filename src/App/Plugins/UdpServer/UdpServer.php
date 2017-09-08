@@ -6,7 +6,7 @@
  * Time: 20:21
  */
 
-namespace Rudl;
+namespace Rudl\App\Plugins\UdpServer;
 
 
 use MongoDB\Client;
@@ -51,7 +51,7 @@ class UdpServer
 
 
     public function getMongoConnection() : Client {
-        return new \MongoDB\Client("mongodb://localhost:27017");
+        return new \MongoDB\Client($this->mMongoDbConStr);
     }
 
 
@@ -59,6 +59,14 @@ class UdpServer
         $this->mProcessors[$processor->getMessageId()] = $processor;
         $this->log("Installing " . get_class($processor), 2);
         $processor->installDb($this->getMongoConnection());
+    }
+
+    /**
+     *
+     * @return UdpServerProcessor[]
+     */
+    public function getProcessors () {
+        return array_values($this->mProcessors);
     }
 
 

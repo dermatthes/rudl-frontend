@@ -33,8 +33,26 @@
                     });
                 </script>
             </div>
+
         </div>
 
+        <div class="row mt">
+
+            <div class="col-lg-12">
+                <div class="content-panel">
+                    <h4><i class="fa fa-angle-right"></i> CPU Consumption (last hour) [sec/minute]</h4>
+                    <div class="panel-body">
+                        <div id="requests-graph-cpu-hour" class="graph"></div>
+                    </div>
+                </div>
+                <script language="JavaScript">
+                    $.get("/api/statsView/HourOfDayResourceStatCpuHour", function (data) {
+                        data.element = 'requests-graph-cpu-hour';
+                        Morris.Line(data);
+                    });
+                </script>
+            </div>
+        </div>
 
 
 

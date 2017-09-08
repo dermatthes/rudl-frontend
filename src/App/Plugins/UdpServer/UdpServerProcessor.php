@@ -6,7 +6,7 @@
  * Time: 20:36
  */
 
-namespace Rudl;
+namespace Rudl\App\Plugins\UdpServer;
 
 
 use MongoDB\Client;
@@ -29,5 +29,7 @@ interface UdpServerProcessor
     public function flush();
 
     public function processData(int $flushTimestamp, Client $mongoDb);
+
+    public function concentrateData (Client $mongoDb);
 
 }

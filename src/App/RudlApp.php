@@ -4,6 +4,7 @@
     namespace Rudl\App;
     use Gismo\Component\Config\AppConfig;
     use Gismo\Component\HttpFoundation\Request\Request;
+    use Gismo\Component\Plugin\AppLauncher;
     use Gismo\Component\Plugin\App;
     use Gismo\Component\Plugin\Loader\JsonFilePluginLoader;
     use Gismo\Component\Route\Type\RouterRequest;
@@ -11,6 +12,10 @@
     use Golafix\Conf\GolafixRouter;
     use Golafix\Conf\ZipPool;
     use MongoDB\Client;
+    use Phore\Cli\CliController;
+    use Rudl\App\Plugins\UdpServer\Processor\ResourceProcessor;
+    use Rudl\App\Plugins\UdpServer\Processor\SyslogProcessor;
+    use Rudl\App\Plugins\UdpServer\UdpServer;
 
     /**
      * Created by PhpStorm.
@@ -32,13 +37,29 @@
             $this->mContext = $c = new FrontendContext(true);
             $c->loadYaml(__DIR__ . "/../../frontend.yml");
             $c[Client::class] = function () {
-                return new \MongoDB\Client("mongodb://84.44.160.73:27017");
+                return new \MongoDB\Client(CONF_MONGO_CONNECTION);
             };
+
+            $c[UdpServer::class] = $c->service(function () {
+                $udpServer = new UdpServer(null, 62111, CONF_MONGO_CONNECTION);
+                // Add all Processors below...
+                $udpServer->addProcessor(new ResourceProcessor());
+                $udpServer->addProcessor(new SyslogProcessor());
+                return $udpServer;
+            });
 
             $plugin = new BasePlugin();
             $plugin->onContextInit($c);
         }
 
+        public function runCmd (array $mockParams=null) {
+            $context = $this->mContext;
+
+            $ctrl = $context["cli.controller"];
+            if ( ! $ctrl instanceof CliController)
+                throw new \InvalidArgumentException("'cli.controller' should be of Type CliController");
+            $ctrl->dispatch($mockParams);
+        }
 
         public function run(Request $request) {
             $p = $this->mContext;

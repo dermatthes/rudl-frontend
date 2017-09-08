@@ -6,11 +6,12 @@
  * Time: 12:41
  */
 
-namespace Rudl\Processor;
+namespace Rudl\App\Plugins\UdpServer\Processor;
 
 
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
-use Rudl\UdpServerProcessor;
+use Rudl\App\Plugins\UdpServer\UdpServerProcessor;
 
 class SyslogProcessor implements UdpServerProcessor
 {
@@ -101,5 +102,11 @@ class SyslogProcessor implements UdpServerProcessor
         }
     }
 
+
+    public function concentrateData(Client $mongoDb)
+    {
+        $mongoDb->selectCollection("Rudl", "Syslog")
+            ->deleteMany([ "timestamp" => [ "\$lt" => new UTCDateTime(strtotime("-8 days") * 1000) ] ]);
+    }
 
 }

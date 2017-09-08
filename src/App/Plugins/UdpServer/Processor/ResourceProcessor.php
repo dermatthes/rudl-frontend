@@ -6,14 +6,12 @@
  * Time: 15:34
  */
 
-namespace Rudl\Processor;
+namespace Rudl\App\Plugins\UdpServer\Processor;
 
 
-use MongoDB\BSON\ObjectID;
-use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
-use Rudl\UdpServerProcessor;
+use Rudl\App\Plugins\UdpServer\UdpServerProcessor;
 
 class ResourceProcessor implements UdpServerProcessor
 {
@@ -33,44 +31,19 @@ class ResourceProcessor implements UdpServerProcessor
     {
         $col = $mongoDb->selectCollection("Rudl", "Resource_SysId");
         $col->createIndex(["sysId" => 1, "timestamp" => 1]);
-        $col->createIndex(["sysId" => 1, "date_hod" => 1]);
-        $col->createIndex(["sysId" => 1, "date_dow" => 1]);
-        $col->createIndex(["sysId" => 1, "date_dom" => 1]);
-        $col->createIndex(["sysId" => 1, "date_moy" => 1]);
-        $col->createIndex(["sysId" => 1, "date_doy" => 1]);
-        $col->createIndex(["sysId" => 1, "date_year" => 1]);
         $col->createIndex(["timestamp" => 1]);
 
         $mongoDb->selectCollection("Rudl", "Resource_ClientIp");
         $col->createIndex(["clientIp" => 1, "timestamp" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_hod" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_dow" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_dom" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_moy" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_doy" => 1]);
-        $col->createIndex(["clientIp" => 1, "date_year" => 1]);
         $col->createIndex(["timestamp" => 1]);
 
         $mongoDb->selectCollection("Rudl", "Resource_Account");
         $col->createIndex(["account" => 1, "timestamp" => 1]);
-        $col->createIndex(["account" => 1, "date_hod" => 1]);
-        $col->createIndex(["account" => 1, "date_dow" => 1]);
-        $col->createIndex(["account" => 1, "date_dom" => 1]);
-        $col->createIndex(["account" => 1, "date_moy" => 1]);
-        $col->createIndex(["account" => 1, "date_doy" => 1]);
-        $col->createIndex(["account" => 1, "date_year" => 1]);
         $col->createIndex(["timestamp" => 1]);
 
         $mongoDb->selectCollection("Rudl", "Resource_Request");
         $col->createIndex(["account" => 1, "timestamp" => 1]);
         $col->createIndex(["timestamp" => 1]);
-        $col->createIndex(["date_hod" => 1]);
-        $col->createIndex(["date_dow" => 1]);
-        $col->createIndex(["date_dom" => 1]);
-        $col->createIndex(["date_moy" => 1]);
-        $col->createIndex(["date_doy" => 1]);
-        $col->createIndex(["date_year" => 1]);
-
         $col->createIndex(["clientIp" => 1, "timestamp" => 1]);
         $col->createIndex(["timestamp" => 1]);
     }
@@ -106,12 +79,6 @@ class ResourceProcessor implements UdpServerProcessor
 
         $this->bufferByRequest[] = [
             "timestamp" => new UTCDateTime((int)(microtime(true) * 1000)),
-            "date_hod" => (int)date ("G"), // hour of day
-            "date_dow" => (int)date ("w"), // Day of week
-            "date_dom" => (int)date ("j"), // Day of month
-            "date_moy" => (int)date ("n"), // Month of year
-            "date_doy" => (int)date ("z"), // Day of year 0-365
-            "date_year" => (int)date ("Y"), // Year
             "sysId" => $_sysId,
             "clientIp" => $_clientIp,
             "account" => $_accountId,
@@ -148,12 +115,6 @@ class ResourceProcessor implements UdpServerProcessor
         foreach ($this->bufferBySysId as $sysId => $value) {
             $rec = [
                 "timestamp" => new UTCDateTime($flushTimestamp * 1000),
-                "date_hod" => (int)date ("G", $flushTimestamp), // hour of day
-                "date_dow" => (int)date ("w", $flushTimestamp), // Day of week
-                "date_dom" => (int)date ("j", $flushTimestamp), // Day of month
-                "date_moy" => (int)date ("n", $flushTimestamp), // Month of year
-                "date_doy" => (int)date ("z", $flushTimestamp), // Day of year 0-365
-                "date_year" => (int)date ("Y", $flushTimestamp), // Year
                 "sysId" => $sysId,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
@@ -170,12 +131,6 @@ class ResourceProcessor implements UdpServerProcessor
         foreach ($this->bufferByClientIp as $clientIp => $value) {
             $rec = [
                 "timestamp" => new UTCDateTime($flushTimestamp * 1000),
-                "date_hod" => (int)date ("G", $flushTimestamp), // hour of day
-                "date_dow" => (int)date ("w", $flushTimestamp), // Day of week
-                "date_dom" => (int)date ("j", $flushTimestamp), // Day of month
-                "date_moy" => (int)date ("n", $flushTimestamp), // Month of year
-                "date_doy" => (int)date ("z", $flushTimestamp), // Day of year 0-365
-                "date_year" => (int)date ("Y", $flushTimestamp), // Year
                 "clientIp" => $clientIp,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
@@ -192,12 +147,6 @@ class ResourceProcessor implements UdpServerProcessor
         foreach ($this->bufferByAccount as $account => $value) {
             $rec = [
                 "timestamp" => new UTCDateTime($flushTimestamp * 1000),
-                "date_hod" => (int)date ("G", $flushTimestamp), // hour of day
-                "date_dow" => (int)date ("w", $flushTimestamp), // Day of week
-                "date_dom" => (int)date ("j", $flushTimestamp), // Day of month
-                "date_moy" => (int)date ("n", $flushTimestamp), // Month of year
-                "date_doy" => (int)date ("z", $flushTimestamp), // Day of year 0-365
-                "date_year" => (int)date ("Y", $flushTimestamp), // Year
                 "account" => $account,
                 "num_requests" => (int)$value["num_requests"],
                 "ru_utime_tv_sec" => (float)$value["ru_utime_tv_sec"],
@@ -220,5 +169,11 @@ class ResourceProcessor implements UdpServerProcessor
     public function injectStringMessage($senderIp, $senderPort, string $message)
     {
         // Not used
+    }
+
+    public function concentrateData(Client $mongoDb)
+    {
+        $mongoDb->selectCollection("Rudl", "Resource_Request")
+            ->deleteMany([ "timestamp" => [ "\$lt" => new UTCDateTime(strtotime("-8 days") * 1000) ] ]);
     }
 }

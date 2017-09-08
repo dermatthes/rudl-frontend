@@ -12,17 +12,17 @@ namespace Rudl\App\Plugins\StatsView\Stats;
 use MongoDB\BSON\UTCDateTime;
 use MongoDB\Client;
 
-class HourOfDayResourceStatCpu
+class HourOfDayResourceStatCpuHour
 {
 
 
     public function query (Client $con) {
         $coll = $con->selectCollection("Rudl", "Resource_SysId");
         $res = $coll->aggregate([
-            [ '$match' => [ 'timestamp' => ['$gte' => new UTCDateTime(strtotime("- 1 day") * 1000)] ] ],
+            [ '$match' => [ 'timestamp' => ['$gte' => new UTCDateTime(strtotime("- 3 hour") * 1000)] ] ],
             [
                 '$project' => [
-                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-%d %H:00', 'date' => '$timestamp'] ],
+                    'time' => [ '$dateToString' => ['format'=> '%Y-%m-%d %H:%M', 'date' => '$timestamp'] ],
                     'ru_utime_tv_sec' => '$ru_utime_tv_sec',
                     'sysId' => '$sysId'
                 ]
@@ -60,16 +60,18 @@ class HourOfDayResourceStatCpu
         $allKeys = [];
         foreach ($res as $data) {
             //print_r ($data);
+            $gkey = (new \DateTime($data["__groupKey"], new \DateTimeZone("UTC")))->setTimezone(new \DateTimeZone("Europe/Berlin"))->format("Y-m-d H:i");
             $data["time"] = (new \DateTime($data["time"], new \DateTimeZone("UTC")))->setTimezone(new \DateTimeZone("Europe/Berlin"))->format("Y-m-d H:i");
 
-            if ( ! isset ($ret[(string)$data["__groupKey"]]))
-                $ret[(string)$data["__groupKey"]] = [];
-            $ret[(string)$data["__groupKey"]][$data["__key"]] = round($data["__value"], 2);
+            if ( ! isset ($ret[$gkey]))
+                $ret[$gkey] = [];
+
+            $ret[$gkey][$data["__key"]] = round($data["__value"], 2);
             $allKeys[$data["__key"]] = $data["__key"];
             foreach ($data as $key => $value) {
                 if (substr ($key,0, 1) == "_")
                     continue;
-                $ret[(string)$data["__groupKey"]][$key] = (string)$value;
+                $ret[(string)$gkey][$key] = (string)$value;
 
             }
         }

@@ -6,7 +6,7 @@
  * Time: 02:27
  */
 
-    namespace Rudl;
+    namespace Rudl\App\Plugins\UdpServer;
 
 
     class UdpLogConnector

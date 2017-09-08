@@ -74,6 +74,7 @@ class RequestViewPlugin implements Plugin
 
                     $dateTime = $cur->timestamp->toDateTime();
                     /* @var $dateTime \DateTime */
+                    $dateTime->setTimezone(new \DateTimeZone("Europe/Berlin"));
 
                     $line = "<br>";
                     $line .= "<span class='log_date'>" . htmlentities("[{$dateTime->format("Y-m-d H:i:s")}]") . "</span>";

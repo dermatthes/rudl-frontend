@@ -1,0 +1,7 @@
+#!/usr/bin/php
+<?php
+
+
+require __DIR__ . "/../src/bootstrap.inc.php";
+
+\Gismo\Component\Plugin\AppLauncher::Get()->getApp()->runCmd();
