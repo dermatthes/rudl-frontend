@@ -44,7 +44,7 @@ class LogviewPlugin implements Plugin
                 $coll = $con->selectCollection("Rudl", "Syslog");
 
 
-                $restriction = ["timestamp" => ["\$gt" => 0 ]];
+                $restriction = [];
                 if ($lastId != "")
                     $restriction = ["_id" => ["\$gt" => new ObjectID($lastId)]];
 
