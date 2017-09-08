@@ -13,6 +13,7 @@
     use Golafix\Conf\ZipPool;
     use MongoDB\Client;
     use Phore\Cli\CliController;
+    use Rudl\App\Plugins\UdpServer\Processor\LogProcessor;
     use Rudl\App\Plugins\UdpServer\Processor\ResourceProcessor;
     use Rudl\App\Plugins\UdpServer\Processor\SyslogProcessor;
     use Rudl\App\Plugins\UdpServer\UdpServer;
@@ -45,6 +46,7 @@
                 // Add all Processors below...
                 $udpServer->addProcessor(new ResourceProcessor());
                 $udpServer->addProcessor(new SyslogProcessor());
+                $udpServer->addProcessor(new LogProcessor());
                 return $udpServer;
             });
 
