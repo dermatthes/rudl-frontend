@@ -61,7 +61,7 @@ class SyslogProcessor implements UdpServerProcessor
             return false;
 
         $data = [
-            "timestamp" => time(),
+            "timestamp" => new UTCDateTime(time() * 1000),
             "clientIp" => $senderIp,
             "syslogDate" => null,
             "hostname" => null,
